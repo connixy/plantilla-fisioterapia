@@ -7,12 +7,14 @@ import Index from "./pages/Index.tsx";
 import TreatmentPage from "./pages/TreatmentPage.tsx";
 import DoctorPage from "./pages/DoctorPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import IntroOverlay from "./components/IntroOverlay.tsx";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      <IntroOverlay />
       <Toaster />
       <Sonner />
       <BrowserRouter>

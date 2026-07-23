@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { clinic } from "../config/clinic";
 
 const navItems = [
@@ -23,6 +24,12 @@ const Header = () => {
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Bloquea el scroll del fondo mientras el menú móvil está abierto
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
 
   const handleNavClick = (href: string) => {
     setMenuOpen(false);
@@ -88,41 +95,54 @@ const Header = () => {
 
         {/* Mobile toggle */}
         <button
-          className="md:hidden p-2"
-          onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Toggle menu"
+          className="md:hidden p-2 -mr-2 relative z-[70]"
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+          aria-expanded={menuOpen}
         >
           {menuOpen ? (
-            <X className={scrolled ? "text-foreground" : "text-white"} size={24} />
+            <X className="text-foreground" size={26} />
           ) : (
-            <Menu className={scrolled ? "text-foreground" : "text-white"} size={24} />
+            <Menu className={scrolled ? "text-foreground" : "text-white"} size={26} />
           )}
         </button>
       </div>
 
-      {/* Mobile overlay */}
-      {menuOpen && (
-        <div className="md:hidden fixed inset-0 top-16 z-40 bg-white overflow-y-auto animate-fade-in-up">
-          <nav className="min-h-full flex flex-col items-center justify-center gap-6 py-16 bg-white">
-            {navItems.map((item) => (
+      {/* Mobile overlay: pantalla completa, fondo blanco sólido */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            key="mobile-menu"
+            className="md:hidden fixed inset-0 z-[60] bg-white flex flex-col"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+          >
+            <nav className="flex-1 flex flex-col items-center justify-center gap-7 px-6">
+              {navItems.map((item, i) => (
+                <motion.button
+                  key={item.href}
+                  onClick={() => handleNavClick(item.href)}
+                  className="font-tech text-base tracking-[0.15em] uppercase text-foreground hover:text-teal transition-colors"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.05 + i * 0.05, duration: 0.3 }}
+                >
+                  {item.label}
+                </motion.button>
+              ))}
               <button
-                key={item.href}
-                onClick={() => handleNavClick(item.href)}
-                className="font-tech text-sm tracking-[0.15em] uppercase text-foreground hover:text-teal transition-colors"
+                onClick={() => handleNavClick("#contacto")}
+                className="text-white px-10 py-3.5 rounded-xl font-tech text-sm tracking-wider uppercase font-bold transition-colors mt-4"
+                style={{ backgroundColor: clinic.colorBoton }}
               >
-                {item.label}
+                Reservar cita
               </button>
-            ))}
-            <button
-              onClick={() => handleNavClick("#contacto")}
-              className="text-white px-8 py-3 rounded-xl font-tech text-sm tracking-wider uppercase font-bold transition-colors mt-4"
-              style={{ backgroundColor: clinic.colorBoton }}
-            >
-              Reservar cita
-            </button>
-          </nav>
-        </div>
-      )}
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 };

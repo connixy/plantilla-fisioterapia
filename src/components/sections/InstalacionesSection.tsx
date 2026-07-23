@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import AnimatedSection from "../AnimatedSection";
 import treatmentDeportiva from "../../assets/treatment-deportiva.jpg";
@@ -15,45 +15,47 @@ const photos = [
   treatmentGeriatrica, treatmentDolorCronico, beforeCervicalgia, afterCervicalgia,
 ];
 
+const CARD = 260; // ancho de cada imagen (px)
+const GAP = 16;   // separación entre imágenes (px)
+const STEP = CARD + GAP;
+const AUTOPLAY_MS = 3500;
+
 const InstalacionesSection = () => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const dragStart = useRef({ x: 0, scrollLeft: 0 });
+  const count = photos.length;
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const drag = useRef<{ startX: number; active: boolean }>({ startX: 0, active: false });
 
-  const onPointerDown = useCallback((e: React.PointerEvent) => {
-    const el = scrollRef.current;
-    if (!el) return;
-    setIsDragging(true);
-    dragStart.current = { x: e.clientX, scrollLeft: el.scrollLeft };
-    el.setPointerCapture(e.pointerId);
-  }, []);
+  const go = useCallback((dir: number) => {
+    setIndex((i) => (i + dir + count) % count);
+  }, [count]);
 
-  const onPointerMove = useCallback((e: React.PointerEvent) => {
-    if (!isDragging || !scrollRef.current) return;
-    const dx = e.clientX - dragStart.current.x;
-    scrollRef.current.scrollLeft = dragStart.current.scrollLeft - dx;
-  }, [isDragging]);
-
-  const onPointerUp = useCallback((e: React.PointerEvent) => {
-    setIsDragging(false);
-    scrollRef.current?.releasePointerCapture(e.pointerId);
-  }, []);
-
-  const scroll = (dir: number) => {
-    scrollRef.current?.scrollBy({ left: dir * 280, behavior: "smooth" });
-  };
-
-  // Avance automático cada 3,5 s (se pausa mientras el usuario arrastra)
+  // Avance automático cada 3,5 s; vuelve al inicio al llegar al final (módulo).
   useEffect(() => {
-    if (isDragging) return;
-    const id = setInterval(() => {
-      const el = scrollRef.current;
-      if (!el) return;
-      const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 10;
-      el.scrollTo({ left: atEnd ? 0 : el.scrollLeft + 280, behavior: "smooth" });
-    }, 3500);
+    if (paused) return;
+    const id = setInterval(() => setIndex((i) => (i + 1) % count), AUTOPLAY_MS);
     return () => clearInterval(id);
-  }, [isDragging]);
+  }, [paused, count]);
+
+  // Swipe táctil / arrastre con ratón (Pointer Events)
+  const onPointerDown = (e: React.PointerEvent) => {
+    drag.current = { startX: e.clientX, active: true };
+    setPaused(true);
+  };
+  const onPointerUp = (e: React.PointerEvent) => {
+    if (!drag.current.active) return;
+    const dx = e.clientX - drag.current.startX;
+    drag.current.active = false;
+    if (dx <= -40) go(1);
+    else if (dx >= 40) go(-1);
+    setPaused(false);
+  };
+  const onPointerLeave = () => {
+    if (drag.current.active) {
+      drag.current.active = false;
+      setPaused(false);
+    }
+  };
 
   return (
     <section id="instalaciones" className="section-padding bg-background">
@@ -68,44 +70,72 @@ const InstalacionesSection = () => {
         </AnimatedSection>
       </div>
 
-      <div className="relative group">
+      <div
+        className="relative overflow-hidden"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+      >
+        {/* Flechas */}
         <button
-          onClick={() => scroll(-1)}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full glass-panel-light flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+          onClick={() => go(-1)}
+          className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full glass-panel-light flex items-center justify-center shadow-md hover:bg-teal hover:text-white transition-colors"
           aria-label="Anterior"
         >
-          <ChevronLeft size={18} className="text-foreground" />
+          <ChevronLeft size={18} />
         </button>
         <button
-          onClick={() => scroll(1)}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full glass-panel-light flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+          onClick={() => go(1)}
+          className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full glass-panel-light flex items-center justify-center shadow-md hover:bg-teal hover:text-white transition-colors"
           aria-label="Siguiente"
         >
-          <ChevronRight size={18} className="text-foreground" />
+          <ChevronRight size={18} />
         </button>
 
+        {/* Pista: centra la imagen activa mediante translateX */}
         <div
-          ref={scrollRef}
-          className="overflow-x-auto whitespace-nowrap scrollbar-hide touch-pan-x"
-          style={{ scrollBehavior: "auto", cursor: isDragging ? "grabbing" : "grab", WebkitOverflowScrolling: "touch" }}
+          className="flex items-center touch-pan-y select-none"
+          style={{
+            gap: `${GAP}px`,
+            transform: `translateX(calc(50% - ${index * STEP + CARD / 2}px))`,
+            transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+          }}
           onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
-          onPointerCancel={onPointerUp}
+          onPointerLeave={onPointerLeave}
         >
-          <div className="inline-flex gap-4 px-6 select-none">
-            {photos.map((src, i) => (
+          {photos.map((src, i) => (
+            <button
+              key={i}
+              onClick={() => setIndex(i)}
+              className="flex-shrink-0 rounded-[20px] overflow-hidden transition-all duration-500"
+              style={{ width: CARD, opacity: i === index ? 1 : 0.5 }}
+              aria-label={`Ver instalación ${i + 1}`}
+              tabIndex={-1}
+            >
               <img
-                key={i}
                 src={src}
                 alt={`Instalación ${i + 1}`}
-                className="w-[260px] h-[260px] object-cover rounded-[20px] flex-shrink-0 pointer-events-none"
+                className="w-[260px] h-[260px] object-cover pointer-events-none"
                 width={260}
                 height={260}
                 draggable={false}
               />
-            ))}
-          </div>
+            </button>
+          ))}
+        </div>
+
+        {/* Indicadores */}
+        <div className="flex justify-center gap-2 mt-8">
+          {photos.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setIndex(i)}
+              aria-label={`Ir a la imagen ${i + 1}`}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                i === index ? "w-6 bg-teal" : "w-1.5 bg-muted-foreground/30 hover:bg-muted-foreground/50"
+              }`}
+            />
+          ))}
         </div>
       </div>
     </section>

@@ -150,10 +150,10 @@
   z-index: 30;
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
-/* Círculos reducidos ~30% (44px → 31px) */
+/* Tamaño base de los círculos (22px). Cada nodo puede afinar el suyo por estilo. */
 .anat-node-circle {
-  width: 31px;
-  height: 31px;
+  width: 22px;
+  height: 22px;
   border: 1px solid hsla(174, 48%, 32%, 0.25);
   background: hsla(0, 0%, 100%, 0.85);
   border-radius: 50%;
@@ -164,8 +164,8 @@
   transition: all 0.4s ease;
 }
 .anat-node-dot {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
   background: hsl(var(--teal));
   border-radius: 50%;
 }
@@ -197,6 +197,18 @@
 .anat-label.left { left: 0; text-align: right; padding-right: 10px; }
 .anat-label.right { right: 0; text-align: left; padding-left: 10px; }
 .anat-label.active { color: hsl(var(--teal)); }
+
+/* Animación de entrada (intro) */
+@keyframes intro-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.intro-rise { animation: intro-rise 0.8s cubic-bezier(0.2, 0, 0.2, 1) both; }
+@keyframes intro-line {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.intro-line { transform-origin: center; animation: intro-line 0.9s 0.35s cubic-bezier(0.2, 0, 0.2, 1) both; }
 
 /* Smooth scrolling */
 html {

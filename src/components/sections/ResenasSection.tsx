@@ -4,33 +4,39 @@ import AnimatedSection from "../AnimatedSection";
 
 const reports = [
   {
-    name: "Ana P.",
+    name: "Paciente A",
     id: "RPT-2024-0847",
-    condition: "Dolor lumbar crónico",
+    condition: "Dolor lumbar",
     duration: "12 sesiones",
-    status: "RECUPERACIÓN COMPLETA",
-    text: "Desde la primera sesión noté la diferencia. El trato es excepcional y el diagnóstico fue muy preciso.",
-    metrics: { pain: "8 → 1", mobility: "+85%", satisfaction: "10/10" },
+    status: "OBJETIVO ALCANZADO",
+    text: "Desde la primera sesión noté la diferencia. El trato es excepcional y el seguimiento, muy cercano.",
+    metrics: { recuperacion: "Óptima", objetivo: "Alcanzado", experiencia: "Excelente" },
   },
   {
-    name: "Roberto M.",
+    name: "Paciente B",
     id: "RPT-2024-1203",
-    condition: "Rehabilitación postoperatoria LCA",
+    condition: "Rehabilitación postoperatoria",
     duration: "16 sesiones",
     status: "ALTA DEPORTIVA",
-    text: "Me recuperé antes de lo previsto gracias a un plan de tratamiento perfectamente adaptado a mis necesidades.",
-    metrics: { pain: "7 → 0", mobility: "+92%", satisfaction: "10/10" },
+    text: "Volví a mi actividad con un plan perfectamente adaptado a mis necesidades y objetivos.",
+    metrics: { recuperacion: "Excelente", objetivo: "Alcanzado", experiencia: "Excelente" },
   },
   {
-    name: "Lucía G.",
+    name: "Paciente C",
     id: "RPT-2024-0592",
-    condition: "Suelo pélvico posparto",
+    condition: "Recuperación posparto",
     duration: "8 sesiones",
-    status: "RECUPERACIÓN COMPLETA",
+    status: "OBJETIVO ALCANZADO",
     text: "Un equipo profesional, cercano y con mucha experiencia. Recomiendo esta clínica sin dudarlo.",
-    metrics: { pain: "6 → 0", mobility: "+96%", satisfaction: "10/10" },
+    metrics: { recuperacion: "Alta", objetivo: "Alcanzado", experiencia: "Óptima" },
   },
 ];
+
+const metricLabels: Record<string, string> = {
+  recuperacion: "Recuperación",
+  objetivo: "Objetivo",
+  experiencia: "Experiencia",
+};
 
 const stagger = {
   hidden: {},
@@ -85,13 +91,13 @@ const ResenasSection = () => {
                   </p>
                 </div>
 
-                {/* Metrics row */}
+                {/* Indicadores cualitativos */}
                 <div className="grid grid-cols-3 gap-2 mb-5">
                   {Object.entries(r.metrics).map(([key, val]) => (
-                    <div key={key} className="bg-muted/50 rounded-xl p-3 text-center">
-                      <p className="font-tech text-xs font-bold text-foreground">{val}</p>
+                    <div key={key} className="bg-teal/5 border border-teal/10 rounded-xl p-3 text-center">
+                      <p className="font-tech text-xs font-bold text-teal">{val}</p>
                       <p className="font-tech text-[8px] tracking-wider text-muted-foreground uppercase mt-1">
-                        {key === "pain" ? "Dolor" : key === "mobility" ? "Movilidad" : "Satisfacción"}
+                        {metricLabels[key]}
                       </p>
                     </div>
                   ))}

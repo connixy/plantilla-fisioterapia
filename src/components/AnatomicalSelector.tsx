@@ -17,6 +17,10 @@ const SERVICIO_IDS = Object.keys(SERVICIOS);
 interface Zona {
   label: string;
   top: string;
+  /** Posición horizontal del nodo (por defecto centrado). */
+  left?: string;
+  /** Tamaño del círculo en px (por defecto 22). */
+  size?: number;
   side: "left" | "right";
   sesiones: string;
   serviciosIds: string[];
@@ -38,6 +42,7 @@ const ZONAS: Record<string, Zona> = {
   hombro: {
     label: "Hombro",
     top: "18%",
+    left: "37%",
     side: "left",
     sesiones: "6-8",
     serviciosIds: ["deportivo", "dolor", "geriatrica"],
@@ -65,6 +70,8 @@ const ZONAS: Record<string, Zona> = {
   rodilla: {
     label: "Rodilla",
     top: "69%",
+    left: "56%",
+    size: 18,
     side: "right",
     sesiones: "6-10",
     serviciosIds: ["deportivo", "geriatrica", "dolor"],
@@ -74,6 +81,8 @@ const ZONAS: Record<string, Zona> = {
   tobillo: {
     label: "Tobillo / Pie",
     top: "84%",
+    left: "44%",
+    size: 15,
     side: "left",
     sesiones: "4-8",
     serviciosIds: ["deportivo", "pediatrica", "neuro"],
@@ -187,21 +196,26 @@ const AnatomicalSelector = () => {
               );
             })}
 
-            {/* Nodos interactivos (centrados sobre la zona) */}
-            {ZONA_KEYS.map((key) => (
-              <button
-                key={key}
-                type="button"
-                aria-label={ZONAS[key].label}
-                className={`anat-node ${activeKey === key ? "active" : ""}`}
-                style={{ top: ZONAS[key].top, left: "50%" }}
-                onClick={() => setActiveKey(key)}
-              >
-                <div className="anat-node-circle">
-                  <div className="anat-node-dot" />
-                </div>
-              </button>
-            ))}
+            {/* Nodos interactivos (posicionados sobre cada zona) */}
+            {ZONA_KEYS.map((key) => {
+              const z = ZONAS[key];
+              const size = z.size ?? 22;
+              const dot = Math.max(3, Math.round(size * 0.2));
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  aria-label={z.label}
+                  className={`anat-node ${activeKey === key ? "active" : ""}`}
+                  style={{ top: z.top, left: z.left ?? "50%" }}
+                  onClick={() => setActiveKey(key)}
+                >
+                  <div className="anat-node-circle" style={{ width: size, height: size }}>
+                    <div className="anat-node-dot" style={{ width: dot, height: dot }} />
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
 
