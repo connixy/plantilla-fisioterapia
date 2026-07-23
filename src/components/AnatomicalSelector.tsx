@@ -27,7 +27,7 @@ interface Zona {
 const ZONAS: Record<string, Zona> = {
   cervical: {
     label: "Cervical",
-    top: "8%",
+    top: "13%",
     sesiones: "3-5",
     serviciosIds: ["dolor", "neuro", "deportivo"],
     nota: "Abordamos el dolor cervical desde el control motor y la desensibilización del sistema nervioso central.",
@@ -35,7 +35,7 @@ const ZONAS: Record<string, Zona> = {
   },
   hombro: {
     label: "Hombro",
-    top: "20%",
+    top: "19%",
     sesiones: "6-8",
     serviciosIds: ["deportivo", "dolor", "geriatrica"],
     nota: "Especialistas en manguito rotador y readaptación funcional tras lesiones o intervenciones quirúrgicas.",
@@ -43,7 +43,7 @@ const ZONAS: Record<string, Zona> = {
   },
   lumbar: {
     label: "Lumbar",
-    top: "40%",
+    top: "33%",
     sesiones: "4-7",
     serviciosIds: ["dolor", "deportivo", "pelvico", "geriatrica"],
     nota: "Tratamiento integral de hernias y lumbalgias. El trabajo de suelo pélvico y core es clave para la estabilidad lumbar.",
@@ -51,7 +51,7 @@ const ZONAS: Record<string, Zona> = {
   },
   pelvis: {
     label: "Pelvis / Abdomen",
-    top: "52%",
+    top: "44%",
     sesiones: "8-12",
     serviciosIds: ["pelvico", "pediatrica", "dolor"],
     nota: "Unidad especializada en recuperación posparto, tratamiento de diástasis y disfunciones uroginecológicas.",
@@ -59,7 +59,7 @@ const ZONAS: Record<string, Zona> = {
   },
   rodilla: {
     label: "Rodilla",
-    top: "72%",
+    top: "70%",
     sesiones: "6-10",
     serviciosIds: ["deportivo", "geriatrica", "dolor"],
     nota: "Rehabilitación de ligamentos y meniscos, y readaptación tras cirugía o prótesis de rodilla.",
@@ -67,7 +67,7 @@ const ZONAS: Record<string, Zona> = {
   },
   tobillo: {
     label: "Tobillo / Pie",
-    top: "88%",
+    top: "82%",
     sesiones: "4-8",
     serviciosIds: ["deportivo", "pediatrica", "neuro"],
     nota: "Desde esguinces y fascitis en deportistas hasta la reeducación de la marcha en pediatría y geriatría.",
@@ -135,7 +135,36 @@ const AnatomicalSelector = () => {
       <div className="lg:col-span-5 flex flex-col items-center">
         <div className="bg-white/40 p-6 md:p-8 rounded-[3rem] border border-border shadow-inner w-full">
           <div className="anat-container">
-            <div className="anat-silhouette" />
+            {/* Silueta humana de frente (SVG minimalista) */}
+            <svg
+              viewBox="0 0 200 580"
+              className="absolute inset-0 w-full h-full"
+              preserveAspectRatio="xMidYMid meet"
+              aria-hidden="true"
+            >
+              {/* Cabeza */}
+              <circle
+                cx="100"
+                cy="46"
+                r="30"
+                fill="hsla(174, 48%, 32%, 0.12)"
+                stroke="hsla(174, 48%, 32%, 0.45)"
+                strokeWidth="2"
+              />
+              {/* Cuerpo: tronco, brazos y piernas */}
+              <path
+                d="M100,74 C112,74 120,80 124,90 L150,104 C158,107 160,114 158,122
+                   L150,205 C149,214 140,214 139,205 L132,120 L130,175 L134,255
+                   L128,380 L124,470 C124,486 112,486 111,470 L106,330 L100,300
+                   L94,330 L89,470 C88,486 76,486 76,470 L72,380 L66,255 L70,175
+                   L68,120 L61,205 C60,214 51,214 50,205 L42,122 C40,114 42,107 50,104
+                   L76,90 C80,80 88,74 100,74 Z"
+                fill="hsla(174, 48%, 32%, 0.12)"
+                stroke="hsla(174, 48%, 32%, 0.45)"
+                strokeWidth="2"
+                strokeLinejoin="round"
+              />
+            </svg>
             {ZONA_KEYS.map((key) => {
               const z = ZONAS[key];
               return (

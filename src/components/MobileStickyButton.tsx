@@ -8,7 +8,7 @@ const MobileStickyButton = () => {
         className="block w-full text-white text-center py-4 rounded-2xl font-bold shadow-lg transition-all font-tech text-sm tracking-wider uppercase"
         style={{ backgroundColor: clinic.colorBoton }}
       >
-        Reservar en 48h
+        Reservar cita
       </a>
     </div>
   );

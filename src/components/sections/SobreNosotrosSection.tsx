@@ -3,9 +3,9 @@ import { motion } from "framer-motion";
 import AnimatedSection from "../AnimatedSection";
 
 const values = [
-  { icon: Search, title: "Diagnóstico preciso", desc: "Evaluación exhaustiva antes de cada tratamiento para identificar la causa real del problema.", code: "DX_01" },
-  { icon: User, title: "Trato personalizado", desc: "Cada paciente recibe un plan adaptado a su situación, objetivos y ritmo de recuperación.", code: "TX_02" },
-  { icon: Zap, title: "Sin listas de espera", desc: "Primera cita en menos de 48 horas. Tu recuperación no puede esperar.", code: "QK_03" },
+  { icon: Search, title: "Diagnóstico preciso", desc: "Evaluación exhaustiva antes de cada tratamiento para identificar la causa real del problema.", code: "Valoración inicial" },
+  { icon: User, title: "Trato personalizado", desc: "Cada paciente recibe un plan adaptado a su situación, objetivos y ritmo de recuperación.", code: "Plan individualizado" },
+  { icon: Zap, title: "Atención inmediata", desc: "Gestionamos tu cita en el momento. Tu recuperación empieza cuando la necesitas.", code: "Cita al momento" },
 ];
 
 const stagger = {

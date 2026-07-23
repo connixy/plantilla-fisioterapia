@@ -29,7 +29,7 @@ const FinalCTASection = () => {
             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = clinic.colorBotonHover)}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = clinic.colorBoton)}
           >
-            Reservar en 48h
+            Reservar cita
           </a>
         </AnimatedSection>
       </div>

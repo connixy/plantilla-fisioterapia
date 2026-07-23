@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import AnimatedSection from "../AnimatedSection";
 import treatmentDeportiva from "../../assets/treatment-deportiva.jpg";
@@ -42,6 +42,18 @@ const InstalacionesSection = () => {
   const scroll = (dir: number) => {
     scrollRef.current?.scrollBy({ left: dir * 280, behavior: "smooth" });
   };
+
+  // Avance automático cada 3,5 s (se pausa mientras el usuario arrastra)
+  useEffect(() => {
+    if (isDragging) return;
+    const id = setInterval(() => {
+      const el = scrollRef.current;
+      if (!el) return;
+      const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 10;
+      el.scrollTo({ left: atEnd ? 0 : el.scrollLeft + 280, behavior: "smooth" });
+    }, 3500);
+    return () => clearInterval(id);
+  }, [isDragging]);
 
   return (
     <section id="instalaciones" className="section-padding bg-background">

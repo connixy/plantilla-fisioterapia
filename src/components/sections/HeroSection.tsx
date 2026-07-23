@@ -59,8 +59,8 @@ const HeroSection = () => {
             transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
             className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-[1.05] mb-6 tracking-tight"
           >
-            Tu recuperación,{" "}
-            <span className="text-teal">sin esperas.</span>
+            Tu recuperación{" "}
+            <span className="text-teal">empieza ahora.</span>
           </motion.h1>
 
           <motion.p
@@ -105,7 +105,7 @@ const HeroSection = () => {
             {[
               { icon: Star, text: "4.9 valoración", iconClass: "fill-teal" },
               { icon: ShieldCheck, text: "Colegiados CGCFE" },
-              { icon: Clock, text: "Cita en 48h" },
+              { icon: Clock, text: "Cita al momento" },
             ].map((item) => (
               <div key={item.text} className="glass-panel rounded-full px-5 py-2.5 flex items-center gap-2">
                 <item.icon size={14} className={`text-teal ${item.iconClass || ""}`} />
