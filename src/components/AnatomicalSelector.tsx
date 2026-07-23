@@ -35,7 +35,7 @@ const ZONAS: Record<string, Zona> = {
   },
   hombro: {
     label: "Hombro",
-    top: "19%",
+    top: "18.5%",
     sesiones: "6-8",
     serviciosIds: ["deportivo", "dolor", "geriatrica"],
     nota: "Especialistas en manguito rotador y readaptación funcional tras lesiones o intervenciones quirúrgicas.",
