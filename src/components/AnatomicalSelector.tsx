@@ -17,6 +17,7 @@ const SERVICIO_IDS = Object.keys(SERVICIOS);
 interface Zona {
   label: string;
   top: string;
+  side: "left" | "right";
   sesiones: string;
   serviciosIds: string[];
   nota: string;
@@ -27,7 +28,8 @@ interface Zona {
 const ZONAS: Record<string, Zona> = {
   cervical: {
     label: "Cervical",
-    top: "13%",
+    top: "15%",
+    side: "right",
     sesiones: "3-5",
     serviciosIds: ["dolor", "neuro", "deportivo"],
     nota: "Abordamos el dolor cervical desde el control motor y la desensibilización del sistema nervioso central.",
@@ -35,7 +37,8 @@ const ZONAS: Record<string, Zona> = {
   },
   hombro: {
     label: "Hombro",
-    top: "18.5%",
+    top: "18%",
+    side: "left",
     sesiones: "6-8",
     serviciosIds: ["deportivo", "dolor", "geriatrica"],
     nota: "Especialistas en manguito rotador y readaptación funcional tras lesiones o intervenciones quirúrgicas.",
@@ -43,7 +46,8 @@ const ZONAS: Record<string, Zona> = {
   },
   lumbar: {
     label: "Lumbar",
-    top: "33%",
+    top: "35%",
+    side: "right",
     sesiones: "4-7",
     serviciosIds: ["dolor", "deportivo", "pelvico", "geriatrica"],
     nota: "Tratamiento integral de hernias y lumbalgias. El trabajo de suelo pélvico y core es clave para la estabilidad lumbar.",
@@ -51,7 +55,8 @@ const ZONAS: Record<string, Zona> = {
   },
   pelvis: {
     label: "Pelvis / Abdomen",
-    top: "44%",
+    top: "46%",
+    side: "left",
     sesiones: "8-12",
     serviciosIds: ["pelvico", "pediatrica", "dolor"],
     nota: "Unidad especializada en recuperación posparto, tratamiento de diástasis y disfunciones uroginecológicas.",
@@ -59,7 +64,8 @@ const ZONAS: Record<string, Zona> = {
   },
   rodilla: {
     label: "Rodilla",
-    top: "70%",
+    top: "69%",
+    side: "right",
     sesiones: "6-10",
     serviciosIds: ["deportivo", "geriatrica", "dolor"],
     nota: "Rehabilitación de ligamentos y meniscos, y readaptación tras cirugía o prótesis de rodilla.",
@@ -67,7 +73,8 @@ const ZONAS: Record<string, Zona> = {
   },
   tobillo: {
     label: "Tobillo / Pie",
-    top: "82%",
+    top: "84%",
+    side: "left",
     sesiones: "4-8",
     serviciosIds: ["deportivo", "pediatrica", "neuro"],
     nota: "Desde esguinces y fascitis en deportistas hasta la reeducación de la marcha en pediatría y geriatría.",
@@ -135,16 +142,16 @@ const AnatomicalSelector = () => {
       <div className="lg:col-span-5 flex flex-col items-center">
         <div className="bg-white/40 p-6 md:p-8 rounded-[3rem] border border-border shadow-inner w-full">
           <div className="anat-container">
-            {/* Silueta humana de frente (SVG minimalista) */}
+            {/* Silueta humana de frente (SVG minimalista), centrada en el viewBox */}
             <svg
-              viewBox="0 0 200 580"
+              viewBox="0 0 320 560"
               className="absolute inset-0 w-full h-full"
               preserveAspectRatio="xMidYMid meet"
               aria-hidden="true"
             >
               {/* Cabeza */}
               <circle
-                cx="100"
+                cx="160"
                 cy="46"
                 r="30"
                 fill="hsla(174, 48%, 32%, 0.12)"
@@ -153,34 +160,48 @@ const AnatomicalSelector = () => {
               />
               {/* Cuerpo: tronco, brazos y piernas */}
               <path
-                d="M100,74 C112,74 120,80 124,90 L150,104 C158,107 160,114 158,122
-                   L150,205 C149,214 140,214 139,205 L132,120 L130,175 L134,255
-                   L128,380 L124,470 C124,486 112,486 111,470 L106,330 L100,300
-                   L94,330 L89,470 C88,486 76,486 76,470 L72,380 L66,255 L70,175
-                   L68,120 L61,205 C60,214 51,214 50,205 L42,122 C40,114 42,107 50,104
-                   L76,90 C80,80 88,74 100,74 Z"
+                d="M160,74 C172,74 180,80 184,90 L210,104 C218,107 220,114 218,122
+                   L210,205 C209,214 200,214 199,205 L192,120 L190,175 L194,255
+                   L188,380 L184,470 C184,486 172,486 171,470 L166,330 L160,300
+                   L154,330 L149,470 C148,486 136,486 136,470 L132,380 L126,255 L130,175
+                   L128,120 L121,205 C120,214 111,214 110,205 L102,122 C100,114 102,107 110,104
+                   L136,90 C140,80 148,74 160,74 Z"
                 fill="hsla(174, 48%, 32%, 0.12)"
                 stroke="hsla(174, 48%, 32%, 0.45)"
                 strokeWidth="2"
                 strokeLinejoin="round"
               />
             </svg>
+
+            {/* Etiquetas de zona (en los laterales, fuera del cuerpo) */}
             {ZONA_KEYS.map((key) => {
               const z = ZONAS[key];
               return (
                 <div
-                  key={key}
-                  className={`anat-node ${activeKey === key ? "active" : ""}`}
-                  style={{ top: z.top, left: "50%" }}
-                  onClick={() => setActiveKey(key)}
+                  key={`${key}-label`}
+                  className={`anat-label ${z.side} ${activeKey === key ? "active" : ""}`}
+                  style={{ top: z.top }}
                 >
-                  <div className="anat-node-label">{z.label}</div>
-                  <div className="anat-node-circle">
-                    <div className="anat-node-dot" />
-                  </div>
+                  {z.label}
                 </div>
               );
             })}
+
+            {/* Nodos interactivos (centrados sobre la zona) */}
+            {ZONA_KEYS.map((key) => (
+              <button
+                key={key}
+                type="button"
+                aria-label={ZONAS[key].label}
+                className={`anat-node ${activeKey === key ? "active" : ""}`}
+                style={{ top: ZONAS[key].top, left: "50%" }}
+                onClick={() => setActiveKey(key)}
+              >
+                <div className="anat-node-circle">
+                  <div className="anat-node-dot" />
+                </div>
+              </button>
+            ))}
           </div>
         </div>
 

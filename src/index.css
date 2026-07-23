@@ -133,32 +133,27 @@
 }
 
 /* ── Selector anatómico ───────────────────────────────── */
+/* El contenedor mantiene la MISMA proporción que el viewBox del SVG
+   (320×560), de modo que las posiciones en % mapean exactamente sobre
+   la silueta en cualquier tamaño de pantalla. */
 .anat-container {
   position: relative;
-  width: 260px;
-  height: 600px;
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 320 / 560;
   margin: 0 auto;
-}
-.anat-silhouette {
-  position: absolute;
-  inset: 0;
-  border: 2px solid hsla(174, 48%, 32%, 0.15);
-  border-radius: 120px 120px 50px 50px;
-  background: linear-gradient(to bottom, hsla(174, 48%, 32%, 0.05), transparent);
 }
 .anat-node {
   position: absolute;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   z-index: 30;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
+/* Círculos reducidos ~30% (44px → 31px) */
 .anat-node-circle {
-  width: 44px;
-  height: 44px;
+  width: 31px;
+  height: 31px;
   border: 1px solid hsla(174, 48%, 32%, 0.25);
   background: hsla(0, 0%, 100%, 0.85);
   border-radius: 50%;
@@ -169,31 +164,39 @@
   transition: all 0.4s ease;
 }
 .anat-node-dot {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   background: hsl(var(--teal));
   border-radius: 50%;
-}
-.anat-node-label {
-  position: absolute;
-  right: 55px;
-  font-size: 10px;
-  font-weight: 800;
-  color: hsl(var(--muted-foreground));
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  white-space: nowrap;
-  pointer-events: none;
-  transition: all 0.3s ease;
 }
 .anat-node.active .anat-node-circle {
   background: hsl(var(--teal));
   border-color: hsl(var(--teal));
-  box-shadow: 0 0 20px hsla(174, 48%, 32%, 0.35);
-  transform: scale(1.1);
+  box-shadow: 0 0 16px hsla(174, 48%, 32%, 0.35);
+  transform: scale(1.12);
 }
 .anat-node.active .anat-node-dot { background: #ffffff; }
-.anat-node.active .anat-node-label { color: hsl(var(--teal)); font-size: 11px; }
+
+/* Etiquetas de zona: siempre en los laterales, fuera del cuerpo.
+   El cuerpo ocupa ~32%–68% del ancho, así que un ancho del 31% a cada
+   lado nunca se solapa con la silueta. */
+.anat-label {
+  position: absolute;
+  transform: translateY(-50%);
+  width: 31%;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1.15;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+  pointer-events: none;
+  transition: color 0.3s ease;
+}
+.anat-label.left { left: 0; text-align: right; padding-right: 10px; }
+.anat-label.right { right: 0; text-align: left; padding-left: 10px; }
+.anat-label.active { color: hsl(var(--teal)); }
 
 /* Smooth scrolling */
 html {
