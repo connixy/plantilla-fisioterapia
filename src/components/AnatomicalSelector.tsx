@@ -98,8 +98,15 @@ const AnatomicalSelector = () => {
   const [activeKey, setActiveKey] = useState<string>("cervical");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   const zona = ZONAS[activeKey];
+
+  // Al pulsar un nodo: actualiza el panel y se desplaza suavemente hasta él
+  const handleSelect = (key: string) => {
+    setActiveKey(key);
+    panelRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
 
   // Dibuja / actualiza la gráfica de evolución al cambiar de zona
   useEffect(() => {
@@ -208,7 +215,7 @@ const AnatomicalSelector = () => {
                   aria-label={z.label}
                   className={`anat-node ${activeKey === key ? "active" : ""}`}
                   style={{ top: z.top, left: z.left ?? "50%" }}
-                  onClick={() => setActiveKey(key)}
+                  onClick={() => handleSelect(key)}
                 >
                   <div className="anat-node-circle" style={{ width: size, height: size }}>
                     <div className="anat-node-dot" style={{ width: dot, height: dot }} />
@@ -241,7 +248,7 @@ const AnatomicalSelector = () => {
 
       {/* Columna derecha: panel de información dinámico */}
       <div className="lg:col-span-7">
-        <div className="glass-panel-light p-8 md:p-10 rounded-[3rem] shadow-2xl min-h-[560px] flex flex-col">
+        <div ref={panelRef} className="glass-panel-light p-8 md:p-10 rounded-[3rem] shadow-2xl min-h-[560px] flex flex-col">
           <div className="flex justify-between items-start mb-8 gap-4">
             <div>
               <span className="font-tech text-[10px] font-black text-teal uppercase tracking-[0.3em] mb-2 block">
