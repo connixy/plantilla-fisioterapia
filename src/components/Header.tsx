@@ -102,8 +102,8 @@ const Header = () => {
 
       {/* Mobile overlay */}
       {menuOpen && (
-        <div className="md:hidden fixed inset-0 top-16 z-40 animate-fade-in-up bg-background/95 backdrop-blur-xl">
-          <nav className="flex flex-col items-center justify-center gap-6 pt-16 bg-white">
+        <div className="md:hidden fixed inset-0 top-16 z-40 bg-white overflow-y-auto animate-fade-in-up">
+          <nav className="min-h-full flex flex-col items-center justify-center gap-6 py-16 bg-white">
             {navItems.map((item) => (
               <button
                 key={item.href}

@@ -45,7 +45,6 @@ export const clinic = {
   redes: {
     instagram: "#",
     facebook: "#",
-    linkedin: "#",
   },
 
   /**

@@ -48,7 +48,7 @@ const InstalacionesSection = () => {
       <div className="container-clinic">
         <AnimatedSection className="text-center mb-10">
           <span className="font-tech text-[11px] tracking-[0.3em] uppercase text-teal/80 block mb-4">
-            Facilities
+            Instalaciones
           </span>
           <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground tracking-tight">
             Nuestras Instalaciones

@@ -1,181 +1,246 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Chart from "chart.js/auto";
 
-export interface BodyZone {
-  id: string;
+// Diccionario maestro de especialidades (coincide con los 6 tratamientos)
+const SERVICIOS: Record<string, { nombre: string; icono: string }> = {
+  deportivo: { nombre: "Deportiva", icono: "🏃" },
+  pelvico: { nombre: "Suelo Pélvico", icono: "🧘" },
+  neuro: { nombre: "Neurorrehabilitación", icono: "🧠" },
+  pediatrica: { nombre: "Pediátrica", icono: "👶" },
+  geriatrica: { nombre: "Geriátrica", icono: "👴" },
+  dolor: { nombre: "Dolor Crónico", icono: "🛡️" },
+};
+
+const SERVICIO_IDS = Object.keys(SERVICIOS);
+
+interface Zona {
   label: string;
-  treatments: string[];
-  successRate: number;
-  avgSessions: number;
+  top: string;
+  sesiones: string;
+  serviciosIds: string[];
+  nota: string;
+  curva: number[];
 }
 
-const zones: BodyZone[] = [
-  { id: "cervical", label: "Cervical", treatments: ["Neurorrehabilitación", "Dolor crónico"], successRate: 94, avgSessions: 8 },
-  { id: "hombro", label: "Hombro", treatments: ["Fisioterapia deportiva", "Dolor crónico"], successRate: 91, avgSessions: 10 },
-  { id: "lumbar", label: "Lumbar", treatments: ["Dolor crónico", "Fisioterapia geriátrica"], successRate: 89, avgSessions: 12 },
-  { id: "pelvis", label: "Suelo pélvico", treatments: ["Suelo pélvico"], successRate: 96, avgSessions: 6 },
-  { id: "rodilla", label: "Rodilla", treatments: ["Fisioterapia deportiva", "Fisioterapia geriátrica"], successRate: 93, avgSessions: 14 },
-  { id: "tobillo", label: "Tobillo / Pie", treatments: ["Fisioterapia deportiva", "Fisioterapia pediátrica"], successRate: 95, avgSessions: 8 },
-];
+// 6 zonas anatómicas
+const ZONAS: Record<string, Zona> = {
+  cervical: {
+    label: "Cervical",
+    top: "8%",
+    sesiones: "3-5",
+    serviciosIds: ["dolor", "neuro", "deportivo"],
+    nota: "Abordamos el dolor cervical desde el control motor y la desensibilización del sistema nervioso central.",
+    curva: [30, 60, 85, 95],
+  },
+  hombro: {
+    label: "Hombro",
+    top: "20%",
+    sesiones: "6-8",
+    serviciosIds: ["deportivo", "dolor", "geriatrica"],
+    nota: "Especialistas en manguito rotador y readaptación funcional tras lesiones o intervenciones quirúrgicas.",
+    curva: [10, 30, 55, 75, 90],
+  },
+  lumbar: {
+    label: "Lumbar",
+    top: "40%",
+    sesiones: "4-7",
+    serviciosIds: ["dolor", "deportivo", "pelvico", "geriatrica"],
+    nota: "Tratamiento integral de hernias y lumbalgias. El trabajo de suelo pélvico y core es clave para la estabilidad lumbar.",
+    curva: [15, 45, 75, 92, 98],
+  },
+  pelvis: {
+    label: "Pelvis / Abdomen",
+    top: "52%",
+    sesiones: "8-12",
+    serviciosIds: ["pelvico", "pediatrica", "dolor"],
+    nota: "Unidad especializada en recuperación posparto, tratamiento de diástasis y disfunciones uroginecológicas.",
+    curva: [5, 20, 45, 65, 80, 95],
+  },
+  rodilla: {
+    label: "Rodilla",
+    top: "72%",
+    sesiones: "6-10",
+    serviciosIds: ["deportivo", "geriatrica", "dolor"],
+    nota: "Rehabilitación de ligamentos y meniscos, y readaptación tras cirugía o prótesis de rodilla.",
+    curva: [10, 25, 50, 70, 85, 95],
+  },
+  tobillo: {
+    label: "Tobillo / Pie",
+    top: "88%",
+    sesiones: "4-8",
+    serviciosIds: ["deportivo", "pediatrica", "neuro"],
+    nota: "Desde esguinces y fascitis en deportistas hasta la reeducación de la marcha en pediatría y geriatría.",
+    curva: [15, 35, 60, 80, 95],
+  },
+};
 
-interface Props {
-  onSelectZone?: (zone: BodyZone | null) => void;
-}
+const ZONA_KEYS = Object.keys(ZONAS);
+const TEAL = "hsl(174, 48%, 32%)";
 
-const AnatomicalSelector = ({ onSelectZone }: Props) => {
-  const [activeZone, setActiveZone] = useState<string | null>(null);
+const AnatomicalSelector = () => {
+  const [activeKey, setActiveKey] = useState<string>("cervical");
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const chartRef = useRef<Chart | null>(null);
 
-  const handleClick = (zone: BodyZone) => {
-    const next = activeZone === zone.id ? null : zone.id;
-    setActiveZone(next);
-    onSelectZone?.(next ? zone : null);
-  };
+  const zona = ZONAS[activeKey];
 
-  const selected = zones.find((z) => z.id === activeZone);
+  // Dibuja / actualiza la gráfica de evolución al cambiar de zona
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-  // SVG body outline zones (positions relative to viewBox 0 0 200 500)
-  const zonePositions: Record<string, { cx: number; cy: number; r: number }> = {
-    cervical: { cx: 100, cy: 72, r: 18 },
-    hombro: { cx: 100, cy: 115, r: 22 },
-    lumbar: { cx: 100, cy: 195, r: 22 },
-    pelvis: { cx: 100, cy: 250, r: 20 },
-    rodilla: { cx: 100, cy: 345, r: 18 },
-    tobillo: { cx: 100, cy: 440, r: 16 },
-  };
+    chartRef.current?.destroy();
+    chartRef.current = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: zona.curva.map((_, i) => `S${i + 1}`),
+        datasets: [
+          {
+            data: zona.curva,
+            borderColor: TEAL,
+            backgroundColor: "hsla(174, 48%, 32%, 0.08)",
+            borderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            pointRadius: 4,
+            pointBackgroundColor: "#ffffff",
+            pointBorderColor: TEAL,
+            pointBorderWidth: 2,
+          },
+        ],
+      },
+      options: {
+        maintainAspectRatio: false,
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { display: false, min: 0, max: 100 },
+          x: { grid: { display: false }, ticks: { font: { size: 9 }, color: "#a8a29e" } },
+        },
+      },
+    });
+
+    return () => {
+      chartRef.current?.destroy();
+      chartRef.current = null;
+    };
+  }, [activeKey, zona.curva]);
 
   return (
-    <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
-      {/* Body SVG */}
-      <div className="relative w-[200px] md:w-[220px] flex-shrink-0">
-        <svg viewBox="0 0 200 500" className="w-full h-auto">
-          {/* Simplified body silhouette */}
-          <path
-            d="M100 20 C115 20 125 35 125 50 C125 65 115 75 100 75 C85 75 75 65 75 50 C75 35 85 20 100 20 Z
-               M70 85 L55 175 L65 180 L75 120 L85 200 L70 280 L75 380 L68 460 L88 465 L100 390 L112 465 L132 460 L125 380 L130 280 L115 200 L125 120 L135 180 L145 175 L130 85 Z"
-            fill="none"
-            stroke="hsla(174, 48%, 32%, 0.3)"
-            strokeWidth="1.5"
-          />
+    <div className="grid lg:grid-cols-12 gap-8 items-start">
+      {/* Columna izquierda: silueta + leyenda */}
+      <div className="lg:col-span-5 flex flex-col items-center">
+        <div className="bg-white/40 p-6 md:p-8 rounded-[3rem] border border-border shadow-inner w-full">
+          <div className="anat-container">
+            <div className="anat-silhouette" />
+            {ZONA_KEYS.map((key) => {
+              const z = ZONAS[key];
+              return (
+                <div
+                  key={key}
+                  className={`anat-node ${activeKey === key ? "active" : ""}`}
+                  style={{ top: z.top, left: "50%" }}
+                  onClick={() => setActiveKey(key)}
+                >
+                  <div className="anat-node-label">{z.label}</div>
+                  <div className="anat-node-circle">
+                    <div className="anat-node-dot" />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
-          {/* Interactive zones */}
-          {zones.map((zone) => {
-            const pos = zonePositions[zone.id];
-            const isActive = activeZone === zone.id;
+        {/* Leyenda de especialidades */}
+        <div className="mt-8 grid grid-cols-2 gap-3 w-full">
+          {SERVICIO_IDS.map((sId) => {
+            const activo = zona.serviciosIds.includes(sId);
             return (
-              <g key={zone.id} onClick={() => handleClick(zone)} className="cursor-pointer">
-                <circle
-                  cx={pos.cx}
-                  cy={pos.cy}
-                  r={pos.r}
-                  fill={isActive ? "hsla(174, 48%, 32%, 0.25)" : "hsla(174, 48%, 32%, 0.08)"}
-                  stroke={isActive ? "hsl(174, 48%, 32%)" : "hsla(174, 48%, 32%, 0.3)"}
-                  strokeWidth={isActive ? 2 : 1}
-                  className="transition-all duration-300"
-                />
-                {isActive && (
-                  <circle
-                    cx={pos.cx}
-                    cy={pos.cy}
-                    r={pos.r + 4}
-                    fill="none"
-                    stroke="hsl(174, 48%, 32%)"
-                    strokeWidth="1"
-                    opacity="0.4"
-                    className="animate-pulse"
-                  />
-                )}
-                <circle cx={pos.cx} cy={pos.cy} r={3} fill="hsl(174, 48%, 32%)" opacity={isActive ? 1 : 0.5} />
-              </g>
+              <div
+                key={sId}
+                className={`px-3 py-2 rounded-xl text-[10px] font-bold flex items-center gap-2 border transition-all duration-300 ${
+                  activo
+                    ? "bg-white border-teal text-teal shadow-sm -translate-y-0.5"
+                    : "bg-muted border-border text-muted-foreground opacity-40 grayscale"
+                }`}
+              >
+                <span>{SERVICIOS[sId].icono}</span> {SERVICIOS[sId].nombre}
+              </div>
             );
           })}
-        </svg>
-
-        {/* Zone labels */}
-        {zones.map((zone) => {
-          const pos = zonePositions[zone.id];
-          const isActive = activeZone === zone.id;
-          return (
-            <button
-              key={zone.id}
-              onClick={() => handleClick(zone)}
-              className={`absolute font-tech text-[10px] tracking-wider uppercase transition-all duration-300 ${
-                isActive ? "text-teal" : "text-muted-foreground/60 hover:text-teal/80"
-              }`}
-              style={{
-                top: `${(pos.cy / 500) * 100}%`,
-                left: pos.cx > 100 ? "70%" : "auto",
-                right: pos.cx <= 100 ? "70%" : "auto",
-                transform: "translateY(-50%)",
-              }}
-            >
-              {zone.label}
-            </button>
-          );
-        })}
+        </div>
       </div>
 
-      {/* Zone details */}
-      <div className="flex-1 min-h-[260px]">
-        {selected ? (
-          <motion.div
-            key={selected.id}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4 }}
-            className="glass-panel-light rounded-[24px] p-8"
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-2 h-2 rounded-full bg-teal animate-pulse" />
-              <span className="font-tech text-xs tracking-widest uppercase text-teal">
+      {/* Columna derecha: panel de información dinámico */}
+      <div className="lg:col-span-7">
+        <div className="glass-panel-light p-8 md:p-10 rounded-[3rem] shadow-2xl min-h-[560px] flex flex-col">
+          <div className="flex justify-between items-start mb-8 gap-4">
+            <div>
+              <span className="font-tech text-[10px] font-black text-teal uppercase tracking-[0.3em] mb-2 block">
                 Zona seleccionada
               </span>
+              <AnimatePresence mode="wait">
+                <motion.h3
+                  key={activeKey}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.3 }}
+                  className="font-heading text-4xl md:text-5xl font-extrabold text-foreground tracking-tight leading-none"
+                >
+                  {zona.label}
+                </motion.h3>
+              </AnimatePresence>
             </div>
-            <h3 className="font-heading text-2xl font-bold text-foreground mb-6 tracking-tight">
-              {selected.label}
-            </h3>
-
-            {/* Metrics */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="bg-muted/50 rounded-2xl p-4">
-                <p className="font-tech text-2xl font-bold text-teal">{selected.successRate}%</p>
-                <p className="font-tech text-[10px] tracking-wider uppercase text-muted-foreground mt-1">Tasa de éxito</p>
-              </div>
-              <div className="bg-muted/50 rounded-2xl p-4">
-                <p className="font-tech text-2xl font-bold text-foreground">{selected.avgSessions}</p>
-                <p className="font-tech text-[10px] tracking-wider uppercase text-muted-foreground mt-1">Sesiones promedio</p>
-              </div>
+            <div className="bg-muted/60 border border-border px-5 py-3 rounded-2xl text-center flex-shrink-0">
+              <span className="block font-tech text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">
+                Sesiones estimadas
+              </span>
+              <span className="font-heading text-3xl font-black italic text-foreground">{zona.sesiones}</span>
             </div>
-
-            {/* Related treatments */}
-            <div>
-              <p className="font-tech text-[10px] tracking-widest uppercase text-muted-foreground mb-3">
-                Protocolos disponibles
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {selected.treatments.map((t) => (
-                  <span
-                    key={t}
-                    className="font-tech text-xs px-3 py-1.5 rounded-full bg-teal/10 text-teal border border-teal/20"
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        ) : (
-          <div className="glass-panel-light rounded-[24px] p-8 flex flex-col items-center justify-center min-h-[260px] text-center">
-            <div className="w-12 h-12 rounded-full border-2 border-dashed border-teal/30 flex items-center justify-center mb-4">
-              <span className="font-tech text-teal text-lg">⊕</span>
-            </div>
-            <p className="font-tech text-xs tracking-widest uppercase text-muted-foreground">
-              Selecciona una zona del cuerpo
-            </p>
-            <p className="text-sm text-muted-foreground mt-2">
-              Haz clic en un punto para ver protocolos y métricas
-            </p>
           </div>
-        )}
+
+          {/* Especialidades que intervienen */}
+          <div className="mb-8">
+            <h4 className="font-tech text-xs font-black text-muted-foreground uppercase mb-5 flex items-center gap-2">
+              <span className="w-2 h-2 bg-teal rounded-full" />
+              Especialidades que intervienen en esta zona
+            </h4>
+            <div className="flex flex-wrap gap-3">
+              {zona.serviciosIds.map((sId) => (
+                <div
+                  key={sId}
+                  className="bg-teal/10 text-teal px-4 py-2 rounded-2xl text-xs font-extrabold flex items-center gap-2 border border-teal/20 shadow-sm"
+                >
+                  <span>{SERVICIOS[sId].icono}</span> {SERVICIOS[sId].nombre}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Protocolo clínico */}
+          <div className="p-6 bg-carbon text-carbon-foreground rounded-[2rem] shadow-lg mb-8 relative overflow-hidden">
+            <h4 className="font-tech text-[9px] font-bold text-teal uppercase mb-2 tracking-widest">
+              Protocolo clínico
+            </h4>
+            <p className="text-xs leading-relaxed italic text-carbon-foreground/70 font-medium">{zona.nota}</p>
+            <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-teal/10 rounded-full blur-xl" />
+          </div>
+
+          {/* Gráfica de evolución */}
+          <div className="mt-auto pt-6 border-t border-border">
+            <h4 className="font-tech text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-4 text-center">
+              Evolución de bienestar proyectada
+            </h4>
+            <div className="relative w-full h-[200px]">
+              <canvas ref={canvasRef} />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

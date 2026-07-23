@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Instagram, Facebook, Linkedin, Phone, Mail, MapPin } from "lucide-react";
+import { Instagram, Facebook, Phone, Mail, MapPin } from "lucide-react";
 import { clinic, telHref, mailtoHref } from "../config/clinic";
 
 const treatments = [
@@ -28,7 +28,6 @@ const Footer = () => {
               {[
                 { Icon: Instagram, href: clinic.redes.instagram },
                 { Icon: Facebook, href: clinic.redes.facebook },
-                { Icon: Linkedin, href: clinic.redes.linkedin },
               ].map(({ Icon, href }, i) => (
                 <a key={i} href={href} className="text-carbon-foreground/30 hover:text-teal transition-colors" aria-label="Social">
                   <Icon size={18} />

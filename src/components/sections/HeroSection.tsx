@@ -1,22 +1,40 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Star, ShieldCheck, Clock } from "lucide-react";
 import { clinic } from "../../config/clinic";
 
+/**
+ * Vídeo de fondo del hero.
+ * Por defecto usa el archivo local public/videos/hero-bg.mp4.
+ * Para usar otro vídeo, sustituye ese archivo o pega aquí una URL:
+ *   const HERO_VIDEO_URL = "https://.../tu-video.mp4";
+ */
+const HERO_VIDEO_URL = "/videos/hero-bg.mp4";
+
 const HeroSection = () => {
+  // Si el vídeo no carga, mostramos un degradado de reserva.
+  const [videoError, setVideoError] = useState(false);
+
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Video background */}
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover"
-      >
-        <source src="/videos/hero-bg.mp4" type="video/mp4" />
-      </video>
+      {/* Fondo de reserva (visible si no hay vídeo) */}
+      <div className="absolute inset-0 gradient-navy" />
 
-      {/* Multi-layer overlay */}
+      {/* Vídeo de fondo */}
+      {!videoError && (
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          onError={() => setVideoError(true)}
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src={HERO_VIDEO_URL} type="video/mp4" />
+        </video>
+      )}
+
+      {/* Capa de oscurecimiento */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/70" />
 
       <div className="container-clinic relative z-10 pt-32 pb-20 text-center">

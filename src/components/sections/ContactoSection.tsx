@@ -1,8 +1,8 @@
 import { useState, useMemo } from "react";
-import { Phone, MessageCircle, MapPin, Instagram, Facebook, Linkedin, Mail, CheckCircle2, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import { Phone, MessageCircle, MapPin, Instagram, Facebook, Mail, CheckCircle2, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import AnimatedSection from "../AnimatedSection";
-import { enviarReserva } from "../../lib/booking";
+import { enviarReserva, whatsappReservaHref, mailtoReservaHref, type BookingData } from "../../lib/booking";
 import { clinic, telHref, whatsappHref, mailtoHref } from "../../config/clinic";
 
 const doctors = [
@@ -78,6 +78,7 @@ const ContactoSection = () => {
   const [selectedSlot, setSelectedSlot] = useState<{ date: string; time: string } | null>(null);
   const [step, setStep] = useState<"form" | "grid" | "success">("form");
   const [sending, setSending] = useState(false);
+  const [lastBooking, setLastBooking] = useState<BookingData | null>(null);
 
   const weekDays = useMemo(() => getWeekDays(weekStart), [weekStart]);
 
@@ -87,14 +88,19 @@ const ContactoSection = () => {
     if (!selectedSlot) return;
     setSending(true);
     const doctorName = doctors.find(d => d.slug === form.doctor)?.name || "";
-    await enviarReserva({
+    const data: BookingData = {
       nombre: form.nombre.trim(),
       telefono: form.telefono.trim(),
       email: form.email.trim(),
       doctor: doctorName,
       tratamiento: form.tratamiento,
       fechaHora: `${selectedSlot.date} ${selectedSlot.time}`,
-    });
+    };
+    setLastBooking(data);
+    // 1) Enviamos al backend (webhook), que distribuye a WhatsApp y email de la clínica.
+    await enviarReserva(data);
+    // 2) Además, abrimos el WhatsApp de la clínica con la reserva prerrellenada (canal directo).
+    window.open(whatsappReservaHref(data), "_blank", "noopener,noreferrer");
     setSending(false);
     setStep("success");
   };
@@ -117,7 +123,7 @@ const ContactoSection = () => {
       <div className="container-clinic">
         <AnimatedSection className="text-center mb-16">
           <span className="font-tech text-[11px] tracking-[0.3em] uppercase text-teal/70 block mb-4">
-            Booking System
+            Sistema de reservas
           </span>
           <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-extrabold text-carbon-foreground mb-4 tracking-tight">
             Reserva tu cita
@@ -171,8 +177,11 @@ const ContactoSection = () => {
               </div>
 
               <div className="flex gap-4 pt-2">
-                {[Instagram, Facebook, Linkedin].map((Icon, i) => (
-                  <a key={i} href="#" className="text-carbon-foreground/30 hover:text-teal transition-colors" aria-label="Social"><Icon size={18} /></a>
+                {[
+                  { Icon: Instagram, href: clinic.redes.instagram },
+                  { Icon: Facebook, href: clinic.redes.facebook },
+                ].map(({ Icon, href }, i) => (
+                  <a key={i} href={href} className="text-carbon-foreground/30 hover:text-teal transition-colors" aria-label="Social"><Icon size={18} /></a>
                 ))}
               </div>
             </div>
@@ -328,10 +337,29 @@ const ContactoSection = () => {
                     Cita bloqueada
                   </h3>
                   <p className="text-carbon-foreground/50 text-lg mb-8 font-light">
-                    Te contactaremos por WhatsApp para confirmar.
+                    Te contactaremos por WhatsApp para confirmar. Si no se ha abierto WhatsApp, envíanos también los datos por email:
                   </p>
+                  {lastBooking && (
+                    <div className="flex flex-col sm:flex-row gap-3 mb-8 w-full max-w-sm">
+                      <a
+                        href={whatsappReservaHref(lastBooking)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 py-3 rounded-2xl font-bold text-white text-center transition-transform hover:scale-[1.02]"
+                        style={{ backgroundColor: "#25D366" }}
+                      >
+                        Enviar por WhatsApp
+                      </a>
+                      <a
+                        href={mailtoReservaHref(lastBooking)}
+                        className="flex-1 py-3 rounded-2xl font-bold text-white text-center bg-teal hover:bg-teal-hover transition-colors"
+                      >
+                        Enviar por email
+                      </a>
+                    </div>
+                  )}
                   <button
-                    onClick={() => { setStep("form"); setSelectedSlot(null); setForm({ nombre: "", telefono: "", email: "", doctor: "", tratamiento: "" }); }}
+                    onClick={() => { setStep("form"); setSelectedSlot(null); setLastBooking(null); setForm({ nombre: "", telefono: "", email: "", doctor: "", tratamiento: "" }); }}
                     className="font-tech text-[11px] tracking-wider text-teal hover:underline uppercase"
                   >
                     Reservar otra cita

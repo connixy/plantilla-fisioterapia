@@ -25,7 +25,7 @@ const SobreNosotrosSection = () => {
         <div className="max-w-3xl mx-auto text-center mb-16">
           <AnimatedSection>
             <span className="font-tech text-[11px] tracking-[0.3em] uppercase text-teal/80 block mb-4">
-              Philosophy
+              Filosofía
             </span>
             <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground mb-6 tracking-tight">
               Sobre Nosotros

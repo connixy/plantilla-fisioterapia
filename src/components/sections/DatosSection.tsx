@@ -3,10 +3,10 @@ import { motion, useInView } from "framer-motion";
 import AnimatedSection from "../AnimatedSection";
 
 const stats = [
-  { target: 12, suffix: "+", label: "Años experiencia", unit: "YRS", decimals: 0 },
-  { target: 1400, suffix: "+", label: "Pacientes tratados", unit: "PAT", decimals: 0, formatThousands: true },
-  { target: 4.9, suffix: "/5", label: "Valoración Google", unit: "RTG", decimals: 1 },
-  { target: 3, suffix: "", label: "Especialistas", unit: "DRS", decimals: 0 },
+  { target: 15, suffix: "+", label: "Años de experiencia", unit: "AÑOS", decimals: 0 },
+  { target: 1400, suffix: "+", label: "Pacientes tratados", unit: "PAC", decimals: 0, formatThousands: true },
+  { target: 4.9, suffix: "/5", label: "Valoración Google", unit: "VAL", decimals: 1 },
+  { target: 4, suffix: "", label: "Especialistas", unit: "ESP", decimals: 0 },
 ];
 
 const AnimatedCounter = ({ target, suffix, decimals, formatThousands, inView }: {
@@ -57,7 +57,7 @@ const DatosSection = () => {
       <div className="container-clinic relative">
         <AnimatedSection className="text-center mb-16">
           <span className="font-tech text-[11px] tracking-[0.3em] uppercase text-teal/70 block mb-4">
-            Performance Metrics
+            Métricas de rendimiento
           </span>
           <h2 className="font-heading text-3xl md:text-4xl font-extrabold text-carbon-foreground tracking-tight">
             Especificaciones Técnicas

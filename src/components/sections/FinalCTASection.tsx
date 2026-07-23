@@ -16,7 +16,7 @@ const FinalCTASection = () => {
       <div className="container-clinic relative text-center">
         <AnimatedSection>
           <span className="font-tech text-[11px] tracking-[0.3em] uppercase text-teal/60 block mb-6">
-            Start Recovery
+            Empieza tu recuperación
           </span>
           <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-extrabold text-carbon-foreground mb-10 tracking-tight">
             ¿Cuándo empezamos{" "}

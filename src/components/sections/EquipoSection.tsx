@@ -38,7 +38,7 @@ const EquipoSection = () => {
       <div className="container-clinic">
         <AnimatedSection className="text-center mb-16">
           <span className="font-tech text-[11px] tracking-[0.3em] uppercase text-teal/70 block mb-4">
-            Clinical Team
+            Equipo clínico
           </span>
           <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-extrabold text-carbon-foreground mb-4 tracking-tight">
             Conoce Tu Especialista
