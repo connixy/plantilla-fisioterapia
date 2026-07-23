@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Phone, MessageCircle, MapPin, Instagram, Facebook, Mail, CheckCircle2, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import AnimatedSection from "../AnimatedSection";
-import { enviarReserva, whatsappReservaHref, mailtoReservaHref, type BookingData } from "../../lib/booking";
+import { enviarReserva, enviarEmail, whatsappReservaHref, mailtoReservaHref, type BookingData } from "../../lib/booking";
 import { clinic, telHref, whatsappHref, mailtoHref } from "../../config/clinic";
 
 const doctors = [
@@ -97,8 +97,8 @@ const ContactoSection = () => {
       fechaHora: `${selectedSlot.date} ${selectedSlot.time}`,
     };
     setLastBooking(data);
-    // 1) Enviamos al backend (webhook), que distribuye a WhatsApp y email de la clínica.
-    await enviarReserva(data);
+    // 1) Enviamos por email (EmailJS) y al webhook a la vez, sin backend propio.
+    await Promise.all([enviarEmail(data), enviarReserva(data)]);
     // 2) Además, abrimos el WhatsApp de la clínica con la reserva prerrellenada (canal directo).
     window.open(whatsappReservaHref(data), "_blank", "noopener,noreferrer");
     setSending(false);

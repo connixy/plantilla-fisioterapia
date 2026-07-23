@@ -1,4 +1,5 @@
-import { clinic } from "../config/clinic";
+import emailjs from "@emailjs/browser";
+import { clinic, emailjsConfigurado } from "../config/clinic";
 
 const N8N_WEBHOOK_URL = clinic.webhookReservas;
 
@@ -20,6 +21,36 @@ export async function enviarReserva(data: BookingData): Promise<boolean> {
       body: JSON.stringify(data),
     });
     return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Envía la reserva por email mediante EmailJS (sin backend).
+ * Devuelve true si se envió, false si falló o si EmailJS no está configurado.
+ * Las claves de estos params deben coincidir con las variables {{...}} de la
+ * plantilla en emailjs.com.
+ */
+export async function enviarEmail(data: BookingData): Promise<boolean> {
+  if (!emailjsConfigurado) return false;
+  try {
+    await emailjs.send(
+      clinic.emailjs.serviceId,
+      clinic.emailjs.templateId,
+      {
+        to_email: clinic.contacto.email,
+        nombre: data.nombre,
+        telefono: data.telefono,
+        email: data.email,
+        doctor: data.doctor || "Sin preferencia",
+        tratamiento: data.tratamiento,
+        fecha_hora: data.fechaHora,
+        mensaje: construirMensaje(data),
+      },
+      { publicKey: clinic.emailjs.publicKey },
+    );
+    return true;
   } catch {
     return false;
   }

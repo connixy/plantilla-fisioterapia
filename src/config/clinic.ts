@@ -69,7 +69,28 @@ export const clinic = {
    */
   webhookReservas:
     "https://connixy.app.n8n.cloud/webhook-test/a016edb6-2e09-4535-82fd-4e134c1b2ecd",
+
+  /**
+   * EmailJS (https://emailjs.com) — envío del formulario por email SIN backend.
+   * Rellena estos 3 valores desde tu cuenta de EmailJS:
+   *   serviceId  → Email Services → tu servicio (ej. "service_ab12cde")
+   *   templateId → Email Templates → tu plantilla (ej. "template_xy34fgh")
+   *   publicKey  → Account → General → Public Key (ej. "AbC1dEfGhIjKlMnOp")
+   * El email se enviará al destinatario configurado en la plantilla (usa
+   * {{to_email}}, que se rellena con clinic.contacto.email).
+   */
+  emailjs: {
+    serviceId: "TU_SERVICE_ID",
+    templateId: "TU_TEMPLATE_ID",
+    publicKey: "TU_PUBLIC_KEY",
+  },
 } as const;
+
+/** ¿Está EmailJS configurado (no quedan los placeholders)? */
+export const emailjsConfigurado =
+  !clinic.emailjs.serviceId.startsWith("TU_") &&
+  !clinic.emailjs.templateId.startsWith("TU_") &&
+  !clinic.emailjs.publicKey.startsWith("TU_");
 
 /** Enlace tel: listo para usar en href. */
 export const telHref = `tel:${clinic.contacto.telefono}`;
