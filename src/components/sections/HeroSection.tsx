@@ -5,11 +5,11 @@ import { clinic } from "../../config/clinic";
 
 /**
  * Vídeo de fondo del hero.
- * Por defecto usa el archivo local public/videos/hero-bg.mp4.
+ * Por defecto usa el archivo local public/videos/hero-fisio.mp4.
  * Para usar otro vídeo, sustituye ese archivo o pega aquí una URL:
  *   const HERO_VIDEO_URL = "https://.../tu-video.mp4";
  */
-const HERO_VIDEO_URL = "/videos/hero-bg.mp4";
+const HERO_VIDEO_URL = "/videos/hero-fisio.mp4";
 
 const HeroSection = () => {
   // Si el vídeo no carga, mostramos un degradado de reserva.

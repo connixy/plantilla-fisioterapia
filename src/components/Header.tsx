@@ -55,7 +55,9 @@ const Header = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+      className={`fixed top-0 left-0 right-0 transition-all duration-500 ${
+        menuOpen ? "z-[9999]" : "z-50"
+      } ${
         scrolled
           ? "glass-panel-light shadow-sm"
           : "bg-transparent"
@@ -95,7 +97,7 @@ const Header = () => {
 
         {/* Mobile toggle */}
         <button
-          className="md:hidden p-2 -mr-2 relative z-[70]"
+          className="md:hidden p-2 -mr-2 relative z-[10000]"
           onClick={() => setMenuOpen((v) => !v)}
           aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
           aria-expanded={menuOpen}
@@ -113,7 +115,8 @@ const Header = () => {
         {menuOpen && (
           <motion.div
             key="mobile-menu"
-            className="md:hidden fixed inset-0 z-[60] bg-white flex flex-col"
+            className="md:hidden fixed inset-0 z-[9999] flex flex-col"
+            style={{ backgroundColor: "#ffffff", opacity: 1, width: "100vw", height: "100vh", top: 0, left: 0 }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

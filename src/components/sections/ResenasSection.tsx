@@ -4,39 +4,45 @@ import AnimatedSection from "../AnimatedSection";
 
 const reports = [
   {
-    name: "Paciente A",
+    name: "Paciente A.P.",
     id: "RPT-2024-0847",
-    condition: "Dolor lumbar",
+    condition: "Dolor lumbar crónico",
     duration: "12 sesiones",
-    status: "OBJETIVO ALCANZADO",
-    text: "Desde la primera sesión noté la diferencia. El trato es excepcional y el seguimiento, muy cercano.",
-    metrics: { recuperacion: "Óptima", objetivo: "Alcanzado", experiencia: "Excelente" },
+    status: "ALTA CLÍNICA COMPLETA",
+    text: "Desde la primera sesión noté la diferencia. El dolor desapareció por completo y he recuperado la movilidad total para hacer mi vida normal.",
+    boxes: [
+      { value: "0 / 10", label: "Dolor residual" },
+      { value: "100%", label: "Movilidad recuperada" },
+      { value: "ALTA", label: "Estado final", highlight: true },
+    ],
   },
   {
-    name: "Paciente B",
+    name: "Paciente R.M.",
     id: "RPT-2024-1203",
-    condition: "Rehabilitación postoperatoria",
+    condition: "Rehabilitación postoperatoria LCA",
     duration: "16 sesiones",
-    status: "ALTA DEPORTIVA",
-    text: "Volví a mi actividad con un plan perfectamente adaptado a mis necesidades y objetivos.",
-    metrics: { recuperacion: "Excelente", objetivo: "Alcanzado", experiencia: "Excelente" },
+    status: "ALTA DEPORTIVA 100%",
+    text: "Volví a entrenar y a competir al 100% sin ningún tipo de molestia. Un plan perfectamente adaptado a mi nivel.",
+    boxes: [
+      { value: "0 / 10", label: "Dolor en impacto" },
+      { value: "100%", label: "Rendimiento deportivo" },
+      { value: "ALTA", label: "Estado final", highlight: true },
+    ],
   },
   {
-    name: "Paciente C",
+    name: "Paciente L.G.",
     id: "RPT-2024-0592",
-    condition: "Recuperación posparto",
+    condition: "Suelo pélvico posparto",
     duration: "8 sesiones",
-    status: "OBJETIVO ALCANZADO",
-    text: "Un equipo profesional, cercano y con mucha experiencia. Recomiendo esta clínica sin dudarlo.",
-    metrics: { recuperacion: "Alta", objetivo: "Alcanzado", experiencia: "Óptima" },
+    status: "ALTA CLÍNICA COMPLETA",
+    text: "Un equipo profesional y cercano. Recuperé el tono y la fuerza al 100% en muy pocas sesiones. Recomiendo la clínica sin dudarlo.",
+    boxes: [
+      { value: "0 / 10", label: "Molestia residual" },
+      { value: "100%", label: "Tono muscular" },
+      { value: "ALTA", label: "Estado final", highlight: true },
+    ],
   },
 ];
-
-const metricLabels: Record<string, string> = {
-  recuperacion: "Recuperación",
-  objetivo: "Objetivo",
-  experiencia: "Experiencia",
-};
 
 const stagger = {
   hidden: {},
@@ -91,13 +97,26 @@ const ResenasSection = () => {
                   </p>
                 </div>
 
-                {/* Indicadores cualitativos */}
+                {/* Indicadores clínicos */}
                 <div className="grid grid-cols-3 gap-2 mb-5">
-                  {Object.entries(r.metrics).map(([key, val]) => (
-                    <div key={key} className="bg-teal/5 border border-teal/10 rounded-xl p-3 text-center">
-                      <p className="font-tech text-xs font-bold text-teal">{val}</p>
-                      <p className="font-tech text-[8px] tracking-wider text-muted-foreground uppercase mt-1">
-                        {metricLabels[key]}
+                  {r.boxes.map((box, i) => (
+                    <div
+                      key={i}
+                      className={`rounded-xl p-3 text-center border ${
+                        box.highlight
+                          ? "bg-emerald-500 border-emerald-500"
+                          : "bg-teal/5 border-teal/10"
+                      }`}
+                    >
+                      <p className={`font-tech text-xs font-bold ${box.highlight ? "text-white" : "text-teal"}`}>
+                        {box.value}
+                      </p>
+                      <p
+                        className={`font-tech text-[8px] tracking-wider uppercase mt-1 ${
+                          box.highlight ? "text-white/90" : "text-muted-foreground"
+                        }`}
+                      >
+                        {box.label}
                       </p>
                     </div>
                   ))}
